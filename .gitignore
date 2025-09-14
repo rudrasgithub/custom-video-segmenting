@@ -23,6 +23,7 @@ out/
 .parcel-cache/
 .vscode/
 .idea/
+.gitignore
 
 # OS generated files
 .DS_Store
