@@ -8,6 +8,21 @@ import fs from "fs";
 const app=express()
 app.use(express.json());
 
+// Configure ytdl-core with better headers for serverless environments
+const ytdlOptions = {
+    requestOptions: {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
+        }
+    }
+};
+
 // CORS configuration for both development and production
 const corsOptions = {
     origin: [
@@ -74,7 +89,30 @@ app.post('/getVideo', async (req, res) => {
     
     try {
         console.log('Attempting to get video info for:', videoUrl);
-        const info = await ytdl.getInfo(videoUrl);
+        
+        // First attempt with enhanced headers
+        let info;
+        try {
+            info = await ytdl.getInfo(videoUrl, ytdlOptions);
+        } catch (firstError) {
+            console.log('First attempt failed, trying with different approach:', firstError.message);
+            
+            // Second attempt with just basic options if the first fails
+            try {
+                info = await ytdl.getInfo(videoUrl, { 
+                    requestOptions: {
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+                        }
+                    }
+                });
+            } catch (secondError) {
+                console.log('Second attempt failed, trying basic request:', secondError.message);
+                // Third attempt with minimal options
+                info = await ytdl.getInfo(videoUrl);
+            }
+        }
+        
         const title = info.videoDetails.title;
         const thumbnail = info.videoDetails.thumbnail.thumbnails[2];
         const VideoDurationInSeconds = info.videoDetails.lengthSeconds;
@@ -117,7 +155,7 @@ app.post('/downloadVideo', async (req, res) => {
         res.setHeader('Content-Disposition', `attachment; filename="${outputPath}"`);
         res.setHeader('Content-Type', 'video/mp4');
 
-        ytdl(url, { quality: itag })
+        ytdl(url, { quality: itag, ...ytdlOptions })
         .on('finish', () => {
             console.log('Finished downloading');
         })
@@ -138,7 +176,7 @@ app.post('/downloadClip', async (req, res) => {
         res.setHeader('Content-Type', 'video/mp4');
         
         const tempFilePath = 'temp_clip.mp4';
-        const stream = ytdl(url, { quality: 18 });
+        const stream = ytdl(url, { quality: 18, ...ytdlOptions });
        
         ffmpeg(stream)
             .setStartTime(startTime)
