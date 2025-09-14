@@ -13,7 +13,7 @@ import {
     setVideo
 } from "../features/video/videoSlice.js";
 import Footer from './Footer.jsx';
-import { BACKEND_URL } from '../config.js';
+import { API_ENDPOINTS } from '../config.js';
 
 export default function CustomVideoDownloader() {
     const dispatch = useDispatch();
@@ -30,7 +30,7 @@ export default function CustomVideoDownloader() {
             dispatch(setLoading(true))
             try{
                 dispatch(setError(null));
-                const response = await axios.post(`${BACKEND_URL}/getVideo`, { url });
+                const response = await axios.post(API_ENDPOINTS.GET_VIDEO, { url });
                 dispatch(setVideo(response.data));
             }catch(err){
                 dispatch(setError('Failed to fetch video. Please check the URL and try again.'));

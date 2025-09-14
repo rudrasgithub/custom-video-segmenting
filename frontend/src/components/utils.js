@@ -1,6 +1,6 @@
 import axios from "axios";
 import toast from 'react-hot-toast';
-import { BACKEND_URL } from '../config.js';
+import { API_ENDPOINTS } from '../config.js';
 
 export const ShowToastMessage = () => {
     toast.success("Downloading started! Please wait.");
@@ -40,7 +40,7 @@ const DownloadManager = (response, outputPath) => {
 export const downloadVideo = async (url, itag, outputPath) => {
     try{
         const response = await axios.post(
-            `${BACKEND_URL}/downloadVideo`,
+            API_ENDPOINTS.DOWNLOAD_VIDEO,
             { url, itag, outputPath },
             { responseType: 'blob' }
         );
@@ -53,7 +53,7 @@ export const downloadVideo = async (url, itag, outputPath) => {
 export const handleDownload = async (url, startTime, endTime, outputPath) => {
     try {
         const response = await axios.post(
-            `${BACKEND_URL}/downloadClip`,
+            API_ENDPOINTS.DOWNLOAD_CLIP,
             { url, startTime, endTime, outputPath },
             { responseType: 'blob' }
         )
