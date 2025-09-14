@@ -8,26 +8,41 @@ import fs from "fs";
 const app=express()
 app.use(express.json());
 
+// CORS configuration for both development and production
 const corsOptions = {
     origin: [
         'http://localhost:5173',  // Vite dev server
         'http://localhost:3000',  // Alternative local port
-        'https://custom-video-segmenting-frontend.vercel.app' // Production frontend (you'll need to replace this with your actual frontend URL)
+        'http://localhost:4173',  // Vite preview server
+        'https://custom-video-segmenting-frontend.vercel.app', // Production frontend
+        /^https:\/\/custom-video-segmenting-frontend.*\.vercel\.app$/  // Vercel preview deployments
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    optionsSuccessStatus: 200 // For legacy browser support
 };
 
 app.use(cors(corsOptions));
 
+// Log CORS origin for debugging
+app.use((req, res, next) => {
+    console.log('Request from origin:', req.headers.origin);
+    next();
+});
+
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+// Health check endpoint
 app.get('/', (req, res) => {
     res.json({ 
         message: 'Custom Video Segmenting Backend API', 
         status: 'running',
-        endpoints: ['/getVideo', '/downloadVideo', '/downloadClip']
+        endpoints: ['/getVideo', '/downloadVideo', '/downloadClip'],
+        cors: {
+            allowedOrigins: corsOptions.origin,
+            currentOrigin: req.headers.origin
+        }
     });
 });
 
