@@ -15,6 +15,7 @@ const corsOptions = {
         'http://localhost:3000',  // Alternative local port
         'http://localhost:4173',  // Vite preview server
         'https://custom-video-segmenting-frontend.vercel.app', // Production frontend
+        'https://custom-video-segmenting-frontend-izphj7c2u.vercel.app', // Current deployment
         /^https:\/\/custom-video-segmenting-frontend.*\.vercel\.app$/  // Vercel preview deployments
     ],
     credentials: true,
