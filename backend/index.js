@@ -49,9 +49,31 @@ app.get('/', (req, res) => {
 });
 
 app.post('/getVideo', async (req, res) => {
-    const videoUrl=req.body.url;
-    if(!videoUrl) return res.status(400).json({message:'Please provide the video url'})
-    try{
+    const videoUrl = req.body.url;
+    
+    // Log the incoming request for debugging
+    console.log('getVideo request:', { url: videoUrl, origin: req.headers.origin });
+    
+    if (!videoUrl) {
+        return res.status(400).json({ message: 'Please provide the video url' });
+    }
+    
+    // Basic URL validation
+    try {
+        new URL(videoUrl);
+    } catch (urlError) {
+        console.log('Invalid URL format:', videoUrl);
+        return res.status(400).json({ message: 'Invalid URL format' });
+    }
+    
+    // Check if it's a YouTube URL
+    if (!ytdl.validateURL(videoUrl)) {
+        console.log('Not a valid YouTube URL:', videoUrl);
+        return res.status(400).json({ message: 'Please provide a valid YouTube URL' });
+    }
+    
+    try {
+        console.log('Attempting to get video info for:', videoUrl);
         const info = await ytdl.getInfo(videoUrl);
         const title = info.videoDetails.title;
         const thumbnail = info.videoDetails.thumbnail.thumbnails[2];
@@ -73,14 +95,19 @@ app.post('/getVideo', async (req, res) => {
             hasVideo: format.hasVideo
         }));
 
+        console.log('Successfully retrieved video info for:', title);
         return res.json({
             title,  
             thumbnail,
             TotalVideoDuration,
             availableFormats
-        })
-    } catch(e) {
-        res.status(500).send('Invalid URL')
+        });
+    } catch(error) {
+        console.error('Error getting video info:', error.message);
+        return res.status(500).json({ 
+            message: 'Unable to retrieve video information. Please check the URL and try again.',
+            error: error.message 
+        });
     }
 })
 
