@@ -7,9 +7,32 @@ import fs from "fs";
 
 const app=express()
 app.use(express.json());
-app.use(cors());
+
+// CORS configuration for both development and production
+const corsOptions = {
+    origin: [
+        'http://localhost:5173',  // Vite dev server
+        'http://localhost:3000',  // Alternative local port
+        'https://custom-video-segmenting-frontend.vercel.app', // Production frontend (you'll need to replace this with your actual frontend URL)
+        /\.vercel\.app$/  // Allow any vercel app (for testing)
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 
 ffmpeg.setFfmpegPath(ffmpegPath);
+
+// Health check endpoint
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Custom Video Segmenting Backend API', 
+        status: 'running',
+        endpoints: ['/getVideo', '/downloadVideo', '/downloadClip']
+    });
+});
 
 app.post('/getVideo', async (req, res) => {
     const videoUrl=req.body.url;

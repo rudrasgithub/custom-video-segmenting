@@ -4,7 +4,7 @@ const isProduction = import.meta.env.PROD;
 
 // Backend URL configuration
 export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 
-  (isDevelopment ? "http://localhost:3000" : "https://your-backend-app.vercel.app");
+  (isDevelopment ? "http://localhost:3000" : "https://custom-video-segmenting-backend.vercel.app");
 
 // API endpoints
 export const API_ENDPOINTS = {
