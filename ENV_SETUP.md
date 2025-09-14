@@ -21,24 +21,19 @@ vercel --prod
 ```
 **Note down the backend URL**: `https://custom-video-segmenting-backend.vercel.app`
 
-### 2. Deploy Frontend with Environment Variable
+### 2. Deploy Frontend (Environment automatically configured)
 ```bash
 cd frontend
 vercel --prod
 ```
 
-### 3. Configure Frontend Environment in Vercel Dashboard
+The frontend will automatically use the production backend URL from `.env.production`.
 
-1. Go to **Vercel Dashboard** → Your Frontend Project
-2. Navigate to **Settings** → **Environment Variables**
-3. Add the following:
+### 3. No Manual Environment Configuration Needed! ✨
 
-| Name | Value | Environment |
-|------|-------|-------------|
-| `VITE_BACKEND_URL` | `https://custom-video-segmenting-backend.vercel.app` | Production |
+The frontend deployment will automatically use the correct backend URL from `.env.production`.
 
-### 4. Redeploy Frontend
-After setting the environment variable:
+### 4. Optional: Force Redeploy (if needed)
 ```bash
 vercel --prod --force
 ```
